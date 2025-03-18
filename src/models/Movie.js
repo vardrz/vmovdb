@@ -12,6 +12,9 @@ class Movie {
     this.popularity = data.popularity;
     this.language = data.original_language;
     this.genreIds = data.genre_ids || [];
+    this.genres = data.genres || [];
+    this.runtime = data.runtime;
+    this.production_companies = data.production_companies || [];
   }
 
   // Get full poster URL
@@ -32,7 +35,7 @@ class Movie {
   getFormattedReleaseDate() {
     if (!this.releaseDate) return 'Unknown';
     const date = new Date(this.releaseDate);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('id-ID', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'

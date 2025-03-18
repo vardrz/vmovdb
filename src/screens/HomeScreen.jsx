@@ -62,9 +62,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleMoviePress = (movie) => {
-    // Navigate to movie details screen (to be implemented)
-    // navigation.navigate('MovieDetails', { movieId: movie.id });
-    console.log('Movie pressed:', movie.title);
+    navigation.navigate('MovieDetail', { movieId: movie.id });
   };
 
   if (loading && !refreshing) {
@@ -109,7 +107,9 @@ const HomeScreen = ({ navigation }) => {
             />
             
             <View style={styles.featuredInfo}>
-              <Text style={styles.featuredTitle}>{featuredMovie.title}</Text>
+              <TouchableOpacity onPress={() => handleMoviePress(featuredMovie)}>
+                <Text style={styles.featuredTitle}>{featuredMovie.title}</Text>
+              </TouchableOpacity>
               <View style={styles.buttonRow}>
                 <View style={styles.smallButton}>
                   <View style={styles.buttonContent}>
@@ -134,10 +134,10 @@ const HomeScreen = ({ navigation }) => {
           </View>
         )}
 
-        {/* Top 10 Movies Section */}
+        {/* Top Rated Movies */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Top 10 Movies This Week</Text>
+            <Text style={styles.sectionTitle}>Top Rated All Times</Text>
             <TouchableOpacity>
               <Text style={styles.seeAll}>See all</Text>
             </TouchableOpacity>

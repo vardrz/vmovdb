@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import OnboardScreen from "../screens/OnboardScreen";
 import BottomTabNavigator from "./BottomTabNavigator";
 import COLORS from "../constants/colors";
+import MovieDetailScreen from "../screens/MovieDetailScreen";
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,7 @@ const AppNavigator = () => {
             <Stack.Screen name="Onboard" component={OnboardScreen} />
           ) : null}
           <Stack.Screen name="Main" component={BottomTabNavigator} />
+          <Stack.Screen name="MovieDetail" component={MovieDetailScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
     </NavigationIndependentTree>

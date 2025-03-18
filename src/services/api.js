@@ -53,17 +53,51 @@ export const movieAPI = {
   // Get movie details
   getMovieDetails: async (movieId) => {
     try {
-      const url = `${BASE_URL}/movie/${movieId}`;
+        const url = `${BASE_URL}/movie/${movieId}`;
+        const response = await fetch(url, { headers });
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.status_message || `Failed to fetch movie details for ID ${movieId}`);
+        }
+        
+        return data;
+    } catch (error) {
+        console.error(`Error fetching movie details for ID ${movieId}:`, error);
+        throw error;
+    }
+  },
+  
+  getMovieVideos: async (movieId) => {
+    try {
+      const url = `${BASE_URL}/movie/${movieId}/videos`;
       const response = await fetch(url, { headers });
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.status_message || `Failed to fetch movie details for ID ${movieId}`);
+        throw new Error(data.status_message || `Failed to fetch videos for movie ID ${movieId}`);
       }
       
       return data;
     } catch (error) {
-      console.error(`Error fetching movie details for ID ${movieId}:`, error);
+      console.error(`Error fetching movie videos for ID ${movieId}:`, error);
+      throw error;
+    }
+  },
+  
+  getMovieImages: async (movieId) => {
+    try {
+      const url = `${BASE_URL}/movie/${movieId}/images`;
+      const response = await fetch(url, { headers });
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.status_message || `Failed to fetch images for movie ID ${movieId}`);
+      }
+      
+      return data;
+    } catch (error) {
+      console.error(`Error fetching movie images for ID ${movieId}:`, error);
       throw error;
     }
   }
