@@ -6,13 +6,7 @@ import COLORS from '../constants/colors';
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
-
-// Placeholder screens
-const SearchScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }}>
-    <Text style={{ color: COLORS.white }}>Search Screen</Text>
-  </View>
-);
+import SearchScreen from '../screens/SearchScreen';
 
 const WatchlistScreen = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }}>

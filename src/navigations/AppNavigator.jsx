@@ -5,6 +5,7 @@ import OnboardScreen from "../screens/OnboardScreen";
 import BottomTabNavigator from "./BottomTabNavigator";
 import COLORS from "../constants/colors";
 import MovieDetailScreen from "../screens/MovieDetailScreen";
+import TvSeriesDetailScreen from "../screens/TvSeriesDetailScreen";
 
 const Stack = createStackNavigator();
 
@@ -21,6 +22,7 @@ const AppNavigator = () => {
           ) : null}
           <Stack.Screen name="Main" component={BottomTabNavigator} />
           <Stack.Screen name="MovieDetail" component={MovieDetailScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="TVDetail" component={TvSeriesDetailScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
     </NavigationIndependentTree>

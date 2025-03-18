@@ -2,11 +2,11 @@
 class Movie {
   constructor(data) {
     this.id = data.id;
-    this.title = data.title;
+    this.title = data.title ?? data.name;
     this.overview = data.overview;
     this.posterPath = data.poster_path;
     this.backdropPath = data.backdrop_path;
-    this.releaseDate = data.release_date;
+    this.releaseDate = data.release_date ?? data.first_air_date;
     this.voteAverage = data.vote_average;
     this.voteCount = data.vote_count;
     this.popularity = data.popularity;
@@ -15,6 +15,7 @@ class Movie {
     this.genres = data.genres || [];
     this.runtime = data.runtime;
     this.production_companies = data.production_companies || [];
+    this.media_type = data.media_type?? 'movie';
   }
 
   // Get full poster URL
