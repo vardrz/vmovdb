@@ -95,7 +95,16 @@ const TvSeriesDetailScreen = ({ route, navigation }) => {
 
   // Add a new renderer for episodes
   const renderEpisodeItem = ({ item }) => (
-    <View style={styles.episodeItem}>
+    <TouchableOpacity 
+      style={styles.episodeItem}
+      onPress={() => navigation.navigate('EpisodeDetail', {
+        tvId,
+        seasonNumber: selectedSeason,
+        episodeNumber: item.episode_number,
+        seriesName: tvSeries.name,
+        seasonName: seasons.find(s => s.season_number === selectedSeason)?.name || `Season ${selectedSeason}`
+      })}
+    >
       <View style={styles.episodeHeader}>
         <View style={styles.episodeNumberContainer}>
           <Text style={styles.episodeNumber}>{item.episode_number}</Text>
@@ -133,7 +142,7 @@ const TvSeriesDetailScreen = ({ route, navigation }) => {
           {item.overview}
         </Text>
       )}
-    </View>
+    </TouchableOpacity>
   );
 
   // Prepare images for the image viewer
@@ -409,7 +418,7 @@ const TvSeriesDetailScreen = ({ route, navigation }) => {
           {/* Gallery Section */}
           {images.backdrops && images.backdrops.length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Gallery</Text>
+              <Text style={styles.sectionTitle}>Images</Text>
               <FlatList
                 data={images.backdrops.slice(0, 10)} // Limit to 10 images
                 keyExtractor={(item, index) => `backdrop-${index}`}
@@ -436,14 +445,6 @@ const TvSeriesDetailScreen = ({ route, navigation }) => {
             enableSwipeDown={true}
             onSwipeDown={() => setModalVisible(false)}
             backgroundColor="rgba(0, 0, 0, 0.9)"
-            renderHeader={() => (
-              <TouchableOpacity 
-                style={styles.closeButton}
-                onPress={() => setModalVisible(false)}
-              >
-                <Ionicons name="close" size={24} color={COLORS.white} />
-              </TouchableOpacity>
-            )}
           />
         </View>
       </Modal>

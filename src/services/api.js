@@ -200,6 +200,60 @@ export const movieAPI = {
             throw error;
         }
     },
+    
+    // Get TV episode details
+    getTvEpisodeDetails: async (tvId, seasonNumber, episodeNumber) => {
+        try {
+            const url = `${BASE_URL}/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}`;
+            const response = await fetch(url, { headers });
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.status_message || `Failed to fetch episode details for TV series ID ${tvId}, season ${seasonNumber}, episode ${episodeNumber}`);
+            }
+            
+            return data;
+        } catch (error) {
+            console.error(`Error fetching episode details for TV series ID ${tvId}, season ${seasonNumber}, episode ${episodeNumber}:`, error);
+            throw error;
+        }
+    },
+    
+    // Get TV episode images
+    getTvEpisodeImages: async (tvId, seasonNumber, episodeNumber) => {
+        try {
+            const url = `${BASE_URL}/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}/images`;
+            const response = await fetch(url, { headers });
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.status_message || `Failed to fetch episode images`);
+            }
+            
+            return data;
+        } catch (error) {
+            console.error(`Error fetching episode images:`, error);
+            throw error;
+        }
+    },
+    
+    // Get TV episode videos
+    getTvEpisodeVideos: async (tvId, seasonNumber, episodeNumber) => {
+        try {
+            const url = `${BASE_URL}/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}/videos`;
+            const response = await fetch(url, { headers });
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.status_message || `Failed to fetch episode videos`);
+            }
+            
+            return data;
+        } catch (error) {
+            console.error(`Error fetching episode videos:`, error);
+            throw error;
+        }
+    },
 };
 
 export default movieAPI;
