@@ -48,58 +48,58 @@ export const movieAPI = {
         }
     },
 
-    // Get trending movies
-    getTrendingMovies: async () => {
-        try {
-            const url = `${BASE_URL}/trending/movie/week`;
-            const response = await fetch(url, { headers });
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.status_message || 'Failed to fetch trending movies');
-            }
-            
-            return data;
-        } catch (error) {
-            console.error('Error fetching trending movies:', error);
-            throw error;
+    // Get trending movies with pagination
+    getTrendingMovies: async (timeWindow = 'week', page = 1) => {
+      try {
+        const url = `${BASE_URL}/trending/movie/${timeWindow}?page=${page}`;
+        const response = await fetch(url, { headers });
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.status_message || 'Failed to fetch trending movies');
         }
-    },
-
-    // Get trending TV series
-    getTrendingTvSeries: async () => {
-        try {
-            const url = `${BASE_URL}/trending/tv/week`;
-            const response = await fetch(url, { headers });
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.status_message || 'Failed to fetch trending TV series');
-            }
-            
-            return data;
-        } catch (error) {
-            console.error('Error fetching trending TV series:', error);
-            throw error;
-        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error fetching trending movies:', error);
+        throw error;
+      }
     },
     
-    // Get top rated TV series
-    getTopRatedTvSeries: async () => {
-        try {
-            const url = `${BASE_URL}/tv/top_rated`;
-            const response = await fetch(url, { headers });
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.status_message || 'Failed to fetch top rated TV series');
-            }
-            
-            return data;
-        } catch (error) {
-            console.error('Error fetching top rated TV series:', error);
-            throw error;
+    // Get trending TV series with pagination
+    getTrendingTvSeries: async (timeWindow = 'week', page = 1) => {
+      try {
+        const url = `${BASE_URL}/trending/tv/${timeWindow}?page=${page}`;
+        const response = await fetch(url, { headers });
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.status_message || 'Failed to fetch trending TV series');
         }
+        
+        return data;
+      } catch (error) {
+        console.error('Error fetching trending TV series:', error);
+        throw error;
+      }
+    },
+    
+    // Get top rated TV series with pagination
+    getTopRatedTvSeries: async (page = 1) => {
+      try {
+        const url = `${BASE_URL}/tv/top_rated?page=${page}`;
+        const response = await fetch(url, { headers });
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.status_message || 'Failed to fetch top rated TV series');
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error fetching top rated TV series:', error);
+        throw error;
+      }
     },
 
     // Get movie details

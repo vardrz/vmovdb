@@ -68,11 +68,10 @@ const HomeScreen = ({ navigation }) => {
       const trendingTv = trendingTvData.results.map(tv => new TvSeries(tv));
       const topRatedTv = topRatedTvData.results.map(tv => new TvSeries(tv));
       
-      // Set a trending movie as featured
-      // Randomly choose between trending and top rated movies for featured movie
-      const allMovies = [...trending, ...topRated];
-      if (allMovies.length > 0) {
-        setFeaturedMovie(allMovies[Math.floor(Math.random() * allMovies.length)]);
+      // Combine all media for random featured selection
+      const allMedia = [...trending, ...topRated, ...trendingTv, ...topRatedTv];
+      if (allMedia.length > 0) {
+        setFeaturedMovie(allMedia[Math.floor(Math.random() * allMedia.length)]);
       }
       
       // Set all state updates at once to reduce render cycles
@@ -104,6 +103,43 @@ const HomeScreen = ({ navigation }) => {
 
   const handleTvSeriesPress = (tvSeries) => {
     navigation.navigate('TVDetail', { tvId: tvSeries.id });
+  };
+
+  const handleSeeAllPress = (type) => {
+    switch(type) {
+      case 'trending-movies':
+        navigation.navigate('MediaList', { 
+          title: 'Trending Movies', 
+          type: 'movie',
+          endpoint: 'trending',
+          timeWindow: 'week'
+        });
+        break;
+      case 'top-rated-movies':
+        navigation.navigate('MediaList', { 
+          title: 'Top Rated Movies', 
+          type: 'movie',
+          endpoint: 'top-rated'
+        });
+        break;
+      case 'trending-tv':
+        navigation.navigate('MediaList', { 
+          title: 'Trending TV Series', 
+          type: 'tv',
+          endpoint: 'trending',
+          timeWindow: 'week'
+        });
+        break;
+      case 'top-rated-tv':
+        navigation.navigate('MediaList', { 
+          title: 'Top Rated TV Series', 
+          type: 'tv',
+          endpoint: 'top-rated'
+        });
+        break;
+      default:
+        break;
+    }
   };
 
   if (loading && !refreshing) {
@@ -149,8 +185,16 @@ const HomeScreen = ({ navigation }) => {
             />
             
             <View style={styles.featuredInfo}>
-              <TouchableOpacity onPress={() => handleMoviePress(featuredMovie)}>
-                <Text style={styles.featuredTitle}>{featuredMovie.title}</Text>
+              <TouchableOpacity 
+                onPress={() => 
+                  featuredMovie instanceof Movie 
+                    ? handleMoviePress(featuredMovie) 
+                    : handleTvSeriesPress(featuredMovie)
+                }
+              >
+                <Text style={styles.featuredTitle}>
+                  {featuredMovie instanceof Movie ? featuredMovie.title : featuredMovie.name}
+                </Text>
               </TouchableOpacity>
               <Text style={styles.overview}>
                 {featuredMovie.overview.length > 150 
@@ -167,13 +211,27 @@ const HomeScreen = ({ navigation }) => {
                 <View style={styles.smallButton}>
                   <View style={styles.buttonContent}>
                     <Ionicons name="calendar-outline" size={14} color={COLORS.white} />
-                    <Text style={styles.smallButtonText}>{featuredMovie.releaseDate.split('-')[0]}</Text>
+                    <Text style={styles.smallButtonText}>
+                      {featuredMovie instanceof Movie 
+                        ? (featuredMovie.releaseDate ? featuredMovie.releaseDate.split('-')[0] : 'N/A')
+                        : (featuredMovie.firstAirDate ? featuredMovie.firstAirDate.split('-')[0] : 'N/A')
+                      }
+                    </Text>
                   </View>
                 </View>
                 <View style={styles.smallButton}>
                   <View style={styles.buttonContent}>
-                    <Ionicons name="language" size={14} color={COLORS.white} />
-                    <Text style={styles.smallButtonText}>{featuredMovie.language.toUpperCase()}</Text>
+                    <Ionicons 
+                      name={featuredMovie instanceof Movie ? "language" : "tv-outline"} 
+                      size={14} 
+                      color={COLORS.white} 
+                    />
+                    <Text style={styles.smallButtonText}>
+                      {featuredMovie instanceof Movie 
+                        ? featuredMovie.language.toUpperCase()
+                        : 'TV SERIES'
+                      }
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -185,7 +243,7 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Trending Movies This Week</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => handleSeeAllPress('trending-movies')}>
               <Text style={styles.seeAll}>See all</Text>
             </TouchableOpacity>
           </View>
@@ -206,7 +264,7 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Trending TV Series This Week</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => handleSeeAllPress('trending-tv')}>
               <Text style={styles.seeAll}>See all</Text>
             </TouchableOpacity>
           </View>
@@ -227,7 +285,7 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Top Rated Movies</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => handleSeeAllPress('top-rated-movies')}>
               <Text style={styles.seeAll}>See all</Text>
             </TouchableOpacity>
           </View>
@@ -248,7 +306,7 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Top Rated TV Series</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => handleSeeAllPress('top-rated-tv')}>
               <Text style={styles.seeAll}>See all</Text>
             </TouchableOpacity>
           </View>

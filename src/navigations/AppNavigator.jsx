@@ -5,6 +5,7 @@ import BottomTabNavigator from "./BottomTabNavigator";
 import MovieDetailScreen from "../screens/MovieDetailScreen";
 import TvSeriesDetailScreen from "../screens/TvSeriesDetailScreen";
 import EpisodeDetailScreen from "../screens/EpisodeDetailScreen";
+import MediaListScreen from '../screens/MediaListScreen';
 
 const Stack = createStackNavigator();
 
@@ -22,6 +23,8 @@ const AppNavigator = () => {
           <Stack.Screen name="MovieDetail" component={MovieDetailScreen} options={{ headerShown: false }} />
           <Stack.Screen name="TVDetail" component={TvSeriesDetailScreen} options={{ headerShown: false }} />
           <Stack.Screen name="EpisodeDetail" component={EpisodeDetailScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="MediaList" component={MediaListScreen} options={{ headerShown: false }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </NavigationIndependentTree>
