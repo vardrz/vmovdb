@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -13,7 +13,9 @@ import {
 } from 'react-native';
 import { movieAPI } from '../services/api';
 import MovieCard from '../components/MovieCard';
+import TvSeriesCard from '../components/TvSeriesCard';
 import Movie from '../models/Movie';
+import TvSeries from '../models/TvSeries';
 import COLORS from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,30 +24,65 @@ const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
   const [topRatedMovies, setTopRatedMovies] = useState([]);
+  const [trendingMovies, setTrendingMovies] = useState([]);
+  const [trendingTvSeries, setTrendingTvSeries] = useState([]);
+  const [topRatedTvSeries, setTopRatedTvSeries] = useState([]);
   const [featuredMovie, setFeaturedMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchTopRatedMovies = async () => {
+  // Use memoized render functions to prevent unnecessary re-renders
+  const renderMovieCard = useCallback(({ item }) => (
+    <MovieCard 
+      key={`movie-${item.id}`}
+      movie={item} 
+      onPress={handleMoviePress} 
+    />
+  ), []);
+
+  const renderTvSeriesCard = useCallback(({ item }) => (
+    <TvSeriesCard 
+      key={`tv-${item.id}`}
+      tvSeries={item} 
+      onPress={handleTvSeriesPress} 
+    />
+  ), []);
+
+  const fetchMovies = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await movieAPI.getTopRatedMovies();
       
-      // Convert API response to Movie objects
-      const movies = data.results.map(movie => new Movie(movie));
+      // Fetch movies and TV series data in parallel
+      const [topRatedData, trendingData, trendingTvData, topRatedTvData] = await Promise.all([
+        movieAPI.getTopRatedMovies(),
+        movieAPI.getTrendingMovies(),
+        movieAPI.getTrendingTvSeries(),
+        movieAPI.getTopRatedTvSeries()
+      ]);
       
-      // Set the first movie as featured
-      if (movies.length > 0) {
-        setFeaturedMovie(movies[Math.floor(Math.random() * movies.length)]);
+      // Convert API responses to Movie and TvSeries objects
+      const topRated = topRatedData.results.map(movie => new Movie(movie));
+      const trending = trendingData.results.map(movie => new Movie(movie));
+      const trendingTv = trendingTvData.results.map(tv => new TvSeries(tv));
+      const topRatedTv = topRatedTvData.results.map(tv => new TvSeries(tv));
+      
+      // Set a trending movie as featured
+      // Randomly choose between trending and top rated movies for featured movie
+      const allMovies = [...trending, ...topRated];
+      if (allMovies.length > 0) {
+        setFeaturedMovie(allMovies[Math.floor(Math.random() * allMovies.length)]);
       }
       
-      // Set the rest as top rated
-      setTopRatedMovies(movies);
+      // Set all state updates at once to reduce render cycles
+      setTopRatedMovies(topRated);
+      setTrendingMovies(trending);
+      setTrendingTvSeries(trendingTv);
+      setTopRatedTvSeries(topRatedTv);
     } catch (err) {
-      console.error('Failed to fetch top rated movies:', err);
-      setError('Failed to load movies. Please try again later.');
+      console.error('Failed to fetch data:', err);
+      setError('Failed to load content. Please try again later.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -53,16 +90,20 @@ const HomeScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    fetchTopRatedMovies();
+    fetchMovies();
   }, []);
 
   const handleRefresh = () => {
     setRefreshing(true);
-    fetchTopRatedMovies();
+    fetchMovies();
   };
 
   const handleMoviePress = (movie) => {
     navigation.navigate('MovieDetail', { movieId: movie.id });
+  };
+
+  const handleTvSeriesPress = (tvSeries) => {
+    navigation.navigate('TvSeriesDetail', { tvId: tvSeries.id });
   };
 
   if (loading && !refreshing) {
@@ -98,6 +139,7 @@ const HomeScreen = ({ navigation }) => {
             <Image 
               source={{ uri: featuredMovie.getBackdropUrl() }} 
               style={styles.featuredImage}
+              defaultSource={require('../../assets/images/no-image.jpg')}
             />
             <LinearGradient
               start={[0, 0]}
@@ -110,6 +152,11 @@ const HomeScreen = ({ navigation }) => {
               <TouchableOpacity onPress={() => handleMoviePress(featuredMovie)}>
                 <Text style={styles.featuredTitle}>{featuredMovie.title}</Text>
               </TouchableOpacity>
+              <Text style={styles.overview}>
+                {featuredMovie.overview.length > 150 
+                  ? `${featuredMovie.overview.substring(0, 130)}...` 
+                  : featuredMovie.overview}
+              </Text>
               <View style={styles.buttonRow}>
                 <View style={styles.smallButton}>
                   <View style={styles.buttonContent}>
@@ -134,10 +181,52 @@ const HomeScreen = ({ navigation }) => {
           </View>
         )}
 
+        {/* Trending Movies */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Trending Movies This Week</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAll}>See all</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <FlatList
+            data={trendingMovies}
+            keyExtractor={(item) => `trending-movie-${item.id.toString()}`}
+            renderItem={renderMovieCard}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.movieList}
+            removeClippedSubviews={false}
+            initialNumToRender={5}
+          />
+        </View>
+
+        {/* Trending TV Series */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Trending TV Series This Week</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAll}>See all</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <FlatList
+            data={trendingTvSeries}
+            keyExtractor={(item) => `trending-tv-${item.id.toString()}`}
+            renderItem={renderTvSeriesCard}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.movieList}
+            removeClippedSubviews={false}
+            initialNumToRender={5}
+          />
+        </View>
+
         {/* Top Rated Movies */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Top Rated All Times</Text>
+            <Text style={styles.sectionTitle}>Top Rated Movies</Text>
             <TouchableOpacity>
               <Text style={styles.seeAll}>See all</Text>
             </TouchableOpacity>
@@ -145,17 +234,36 @@ const HomeScreen = ({ navigation }) => {
           
           <FlatList
             data={topRatedMovies}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <MovieCard movie={item} onPress={handleMoviePress} />
-            )}
+            keyExtractor={(item) => `top-rated-movie-${item.id.toString()}`}
+            renderItem={renderMovieCard}
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.movieList}
+            removeClippedSubviews={false}
+            initialNumToRender={5}
           />
         </View>
 
-        {/* You can add more sections here for different movie categories */}
+        {/* Top Rated TV Series */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Top Rated TV Series</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAll}>See all</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <FlatList
+            data={topRatedTvSeries}
+            keyExtractor={(item) => `top-rated-tv-${item.id.toString()}`}
+            renderItem={renderTvSeriesCard}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.movieList}
+            removeClippedSubviews={false}
+            initialNumToRender={5}
+          />
+        </View>
       </ScrollView>
     </View>
   );
@@ -188,6 +296,7 @@ const styles = StyleSheet.create({
     height: 450,
     width: '100%',
     position: 'relative',
+    marginBottom: 20,
   },
   featuredImage: {
     width: '100%',
@@ -201,17 +310,12 @@ const styles = StyleSheet.create({
     right: 0,
     height: "100%",
   },
-  playButton: {
-    position: 'absolute',
-    top: '40%',
-    left: '50%',
-    transform: [{ translateX: -25 }, { translateY: -25 }],
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+  overview: {
+    color: COLORS.white,
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 10,
+    maxWidth: '80%',
   },
   featuredInfo: {
     position: 'absolute',
@@ -224,6 +328,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
+    textAlign: 'center',
+    maxWidth: '80%',
   },
   buttonRow: {
     flexDirection: 'row',
@@ -245,7 +351,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   section: {
-    marginVertical: 20,
+    marginBottom: 20,
   },
   sectionHeader: {
     flexDirection: 'row',

@@ -3,27 +3,23 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import COLORS from '../constants/colors';
 
-const MovieCard = ({ movie, onPress }) => {
+const TvSeriesCard = ({ tvSeries, onPress }) => {
   return (
     <TouchableOpacity 
       style={styles.container}
-      onPress={() => onPress(movie)}
+      onPress={() => onPress(tvSeries)}
       activeOpacity={0.8}
     >
       <Image
-        source={{ 
-          uri: movie.getPosterUrl(),
-          cache: 'force-cache' // Force caching of images
-        }}
-        defaultSource={require('../../assets/images/no-image.jpg')}
+        source={{ uri: tvSeries.getPosterUrl() }}
         style={styles.poster}
         resizeMode="cover"
       />
       <View style={styles.infoContainer}>
-        <Text style={styles.title} numberOfLines={2}>{movie.title}</Text>
+        <Text style={styles.title} numberOfLines={2}>{tvSeries.name}</Text>
         <View style={styles.ratingContainer}>
           <Ionicons name="star" size={14} color={COLORS.primary} />
-          <Text style={styles.rating}>{movie.getRatingPercentage()}</Text>
+          <Text style={styles.rating}>{tvSeries.getRatingPercentage()}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -40,7 +36,6 @@ const styles = StyleSheet.create({
     height: 210,
     borderRadius: 8,
     marginBottom: 8,
-    backgroundColor: COLORS.cardBackground, // Add background color while loading
   },
   infoContainer: {
     paddingHorizontal: 4,
@@ -62,4 +57,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default React.memo(MovieCard); // Use memo to prevent unnecessary re-renders
+export default TvSeriesCard;
