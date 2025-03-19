@@ -107,7 +107,12 @@ const TvSeriesDetailScreen = ({ route, navigation }) => {
     >
       <View style={styles.episodeHeader}>
         <View style={styles.episodeNumberContainer}>
-          <Text style={styles.episodeNumber}>{item.episode_number}</Text>
+          <Text
+            style={[
+              styles.episodeNumber,
+              { fontSize: item.episode_number > 999 ? 12 : 14 }
+            ]}
+          >{item.episode_number}</Text>
         </View>
         <View style={styles.episodeTitleContainer}>
           <Text style={styles.episodeTitle}>{item.name}</Text>
@@ -770,9 +775,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   episodeNumberContainer: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 45,
+    height: 45,
+    borderRadius: "100%",
     backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
@@ -781,7 +786,6 @@ const styles = StyleSheet.create({
   episodeNumber: {
     color: COLORS.white,
     fontWeight: 'bold',
-    fontSize: 14,
   },
   episodeTitleContainer: {
     flex: 1,

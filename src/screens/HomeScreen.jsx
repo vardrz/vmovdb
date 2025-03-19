@@ -103,7 +103,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleTvSeriesPress = (tvSeries) => {
-    navigation.navigate('TvSeriesDetail', { tvId: tvSeries.id });
+    navigation.navigate('TVDetail', { tvId: tvSeries.id });
   };
 
   if (loading && !refreshing) {
