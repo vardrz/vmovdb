@@ -8,8 +8,6 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Keyboard,
-  StatusBar
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { movieAPI } from '../services/api';
@@ -160,8 +158,6 @@ const SearchScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
-      
       <View style={styles.header}>
         <View style={styles.searchContainer}>
           <Ionicons name="search" size={20} color={COLORS.textSecondary} style={styles.searchIcon} />
