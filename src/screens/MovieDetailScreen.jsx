@@ -10,13 +10,15 @@ import {
   Dimensions,
   FlatList,
   Modal,
-  Linking
+  Linking,
+  ToastAndroid
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { movieAPI } from '../services/api';
 import Movie from '../models/Movie';
+import Watchlist from '../models/Watchlist';
 import COLORS from '../constants/colors';
 
 const { width, height } = Dimensions.get('window');
@@ -30,20 +32,23 @@ const MovieDetailScreen = ({ route, navigation }) => {
   const [error, setError] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
 
   useEffect(() => {
     const fetchMovieData = async () => {
       try {
         setLoading(true);
         // Fetch movie details, images, and videos in parallel
-        const [movieData, imagesData, videosData] = await Promise.all([
+        const [movieData, imagesData, videosData, watchlistStatus] = await Promise.all([
           movieAPI.getMovieDetails(movieId),
           movieAPI.getMovieImages(movieId),
-          movieAPI.getMovieVideos(movieId)
+          movieAPI.getMovieVideos(movieId),
+          Watchlist.isMovieInWatchlist(movieId)
         ]);
         
         setMovie(new Movie(movieData));
         setImages(imagesData);
+        setIsInWatchlist(watchlistStatus);
         
         // Filter videos to only include trailers and teasers from YouTube
         const filteredVideos = videosData.results.filter(
@@ -61,6 +66,22 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
     fetchMovieData();
   }, [movieId]);
+
+  const handleWatchlistToggle = async () => {
+    try {
+      if (isInWatchlist) {
+        await Watchlist.removeMovie(movieId);
+        ToastAndroid.show('Removed from watchlist', ToastAndroid.SHORT);
+      } else {
+        await Watchlist.addMovie(movie);
+        ToastAndroid.show('Added to watchlist', ToastAndroid.SHORT);
+      }
+      setIsInWatchlist(!isInWatchlist);
+    } catch (error) {
+      console.error('Error toggling watchlist:', error);
+      ToastAndroid.show('Failed to update watchlist', ToastAndroid.SHORT);
+    }
+  };
 
   // Prepare images for the image viewer
   const getImageViewerUrls = () => {
@@ -153,6 +174,18 @@ const MovieDetailScreen = ({ route, navigation }) => {
             <Ionicons name="arrow-back" size={24} color={COLORS.white} />
           </TouchableOpacity>
           
+          {/* Watchlist Button */}
+          <TouchableOpacity 
+            style={styles.watchlistButton}
+            onPress={handleWatchlistToggle}
+          >
+            <Ionicons 
+              name={isInWatchlist ? "bookmark" : "bookmark-outline"} 
+              size={24} 
+              color={isInWatchlist ? COLORS.primary : COLORS.white} 
+            />
+          </TouchableOpacity>
+          
           {/* Movie Poster */}
           <View style={styles.posterContainer}>
             <Image
@@ -212,9 +245,13 @@ const MovieDetailScreen = ({ route, navigation }) => {
           
           {/* Action Buttons */}
           <View style={styles.actionContainer}>
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name="add" size={20} color={COLORS.white} />
-              <Text style={styles.actionText}>Add to Watchlist</Text>
+            <TouchableOpacity style={styles.actionButton} onPress={handleWatchlistToggle}>
+              <Ionicons 
+                name={isInWatchlist ? "remove" : "add"} 
+                size={20} 
+                color={COLORS.white} 
+              />
+              <Text style={styles.actionText}>{isInWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}</Text>
             </TouchableOpacity>
           </View>
           
@@ -324,7 +361,16 @@ const styles = StyleSheet.create({
   backArrow: {
     position: 'absolute',
     top: 40,
-    left: 20,
+    left: 16,
+    zIndex: 10,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20,
+    padding: 8,
+  },
+  watchlistButton: {
+    position: 'absolute',
+    top: 40,
+    right: 16,
     zIndex: 10,
     backgroundColor: 'rgba(0,0,0,0.5)',
     borderRadius: 20,

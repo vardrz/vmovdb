@@ -10,13 +10,15 @@ import {
   FlatList,
   Dimensions,
   Modal,
-  Linking
+  Linking,
+  ToastAndroid
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { movieAPI } from '../services/api';
 import TvEpisode from '../models/TvEpisode';
+import Watchlist from '../models/Watchlist';
 import COLORS from '../constants/colors';
 
 const { width, height } = Dimensions.get('window');
@@ -30,21 +32,24 @@ const EpisodeDetailScreen = ({ route, navigation }) => {
   const [error, setError] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
 
   useEffect(() => {
     const fetchEpisodeData = async () => {
       try {
         setLoading(true);
-        // Fetch episode details, images, and videos in parallel
-        const [episodeData, imagesData, videosData] = await Promise.all([
+        // Fetch episode details, images, videos, and watchlist status in parallel
+        const [episodeData, imagesData, videosData, watchlistStatus] = await Promise.all([
           movieAPI.getTvEpisodeDetails(tvId, seasonNumber, episodeNumber),
           movieAPI.getTvEpisodeImages(tvId, seasonNumber, episodeNumber),
-          movieAPI.getTvEpisodeVideos(tvId, seasonNumber, episodeNumber)
+          movieAPI.getTvEpisodeVideos(tvId, seasonNumber, episodeNumber),
+          Watchlist.isEpisodeInWatchlist(tvId, seasonNumber, episodeNumber)
         ]);
         
         setEpisode(new TvEpisode(episodeData));
         setImages(imagesData);
         setVideos(videosData);
+        setIsInWatchlist(watchlistStatus);
       } catch (err) {
         console.error('Failed to fetch episode data:', err);
         setError('Failed to load episode details. Please try again later.');
@@ -55,6 +60,22 @@ const EpisodeDetailScreen = ({ route, navigation }) => {
 
     fetchEpisodeData();
   }, [tvId, seasonNumber, episodeNumber]);
+
+  const handleWatchlistToggle = async () => {
+    try {
+      if (isInWatchlist) {
+        await Watchlist.removeEpisode(tvId, seasonNumber, episodeNumber);
+        ToastAndroid.show('Removed from watchlist', ToastAndroid.SHORT);
+      } else {
+        await Watchlist.addEpisode(episode, tvId, seriesName, seasonName);
+        ToastAndroid.show('Added to watchlist', ToastAndroid.SHORT);
+      }
+      setIsInWatchlist(!isInWatchlist);
+    } catch (error) {
+      console.error('Error toggling watchlist:', error);
+      ToastAndroid.show('Failed to update watchlist', ToastAndroid.SHORT);
+    }
+  };
 
   // Prepare images for the image viewer
   const getImageViewerUrls = () => {
@@ -156,7 +177,7 @@ const EpisodeDetailScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <ScrollView>
-        {/* Episode Still Image with Gradient Overlay */}
+        {/* Episode Still with Gradient Overlay */}
         <View style={styles.stillContainer}>
           <Image
             source={
@@ -177,6 +198,18 @@ const EpisodeDetailScreen = ({ route, navigation }) => {
             onPress={() => navigation.goBack()}
           >
             <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+          </TouchableOpacity>
+          
+          {/* Watchlist Button */}
+          <TouchableOpacity 
+            style={styles.watchlistButton}
+            onPress={handleWatchlistToggle}
+          >
+            <Ionicons 
+              name={isInWatchlist ? "bookmark" : "bookmark-outline"} 
+              size={24} 
+              color={isInWatchlist ? COLORS.primary : COLORS.white} 
+            />
           </TouchableOpacity>
         </View>
         
@@ -521,7 +554,38 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     borderRadius: 20,
     padding: 8,
-  }
+  },
+  watchlistButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    zIndex: 10,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20,
+    padding: 8,
+  },
+  
+  actionContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
+  actionButton: {
+    backgroundColor: COLORS.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  actionText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  
+  // ... rest of the existing styles ...
 });
 
 export default EpisodeDetailScreen;

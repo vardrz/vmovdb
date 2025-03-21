@@ -7,12 +7,7 @@ import COLORS from '../constants/colors';
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
-
-const WatchlistScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }}>
-    <Text style={{ color: COLORS.white }}>Watchlist Screen</Text>
-  </View>
-);
+import WatchlistScreen from '../screens/WatchlistScreen';
 
 const ProfileScreen = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }}>
