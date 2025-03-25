@@ -56,9 +56,9 @@ class Watchlist {
         const tvData = {
           id: tvSeries.id,
           name: tvSeries.name,
-          posterPath: tvSeries.poster_path,
+          posterPath: tvSeries.posterPath,
           firstAirDate: tvSeries.firstAirDate,
-          voteAverage: tvSeries.vote_average,
+          voteAverage: tvSeries.voteAverage,
           addedAt: new Date().toISOString()
         };
         watchlist.tvSeries.push(tvData);

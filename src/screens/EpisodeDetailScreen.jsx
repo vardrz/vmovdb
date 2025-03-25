@@ -256,6 +256,18 @@ const EpisodeDetailScreen = ({ route, navigation }) => {
             </View>
           )}
           
+          {/* Action Buttons */}
+          <View style={styles.actionContainer}>
+            <TouchableOpacity style={styles.actionButton} onPress={handleWatchlistToggle}>
+              <Ionicons 
+                name={isInWatchlist ? "remove" : "add"} 
+                size={20} 
+                color={COLORS.white} 
+              />
+              <Text style={styles.actionText}>{isInWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}</Text>
+            </TouchableOpacity>
+          </View>
+          
           {/* Crew - Directors */}
           {episode.getDirectors().length > 0 && (
             <View style={styles.section}>
@@ -564,28 +576,27 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 8,
   },
-  
   actionContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginVertical: 20,
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
   actionButton: {
     backgroundColor: COLORS.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 8,
+    borderRadius: 25,
+    flex: 1,
+    marginRight: 10,
   },
   actionText: {
     color: COLORS.white,
     fontWeight: 'bold',
     marginLeft: 8,
   },
-  
-  // ... rest of the existing styles ...
 });
 
 export default EpisodeDetailScreen;

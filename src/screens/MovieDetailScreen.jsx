@@ -451,8 +451,7 @@ const styles = StyleSheet.create({
   actionContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
-    marginBottom: 50
+    marginBottom: 30
   },
   actionButton: {
     backgroundColor: COLORS.primary,

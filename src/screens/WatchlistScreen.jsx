@@ -157,7 +157,7 @@ const WatchlistScreen = ({ navigation }) => {
             <View style={styles.ratingContainer}>
               <Ionicons name="star" size={16} color={COLORS.primary} />
               <Text style={styles.rating}>
-                {item.voteAverage ? (item.voteAverage * 10).toFixed(0) + '%' : 'N/A'}
+                {item.voteAverage ? Number((item.voteAverage).toFixed(1)) : 'N/A'}
               </Text>
             </View>
             {firstAirYear ? (

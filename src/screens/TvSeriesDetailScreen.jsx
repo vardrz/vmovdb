@@ -10,13 +10,15 @@ import {
   Dimensions,
   FlatList,
   Modal,
-  Linking
+  Linking,
+  ToastAndroid
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { movieAPI } from '../services/api';
 import TvSeries from '../models/TvSeries';
+import Watchlist from '../models/Watchlist';
 import COLORS from '../constants/colors';
 
 const { width, height } = Dimensions.get('window');
@@ -34,20 +36,23 @@ const TvSeriesDetailScreen = ({ route, navigation }) => {
   const [seasons, setSeasons] = useState([]);
   const [episodes, setEpisodes] = useState([]);
   const [loadingEpisodes, setLoadingEpisodes] = useState(false);
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
 
   useEffect(() => {
     const fetchTvData = async () => {
       try {
         setLoading(true);
-        // Fetch TV series details, images, and videos in parallel
-        const [tvData, imagesData, videosData] = await Promise.all([
+        // Fetch TV series details, images, videos, and watchlist status in parallel
+        const [tvData, imagesData, videosData, watchlistStatus] = await Promise.all([
           movieAPI.getTvDetails(tvId),
           movieAPI.getTvImages(tvId),
-          movieAPI.getTvVideos(tvId)
+          movieAPI.getTvVideos(tvId),
+          Watchlist.isTvSeriesInWatchlist(tvId)
         ]);
         
         setTvSeries(new TvSeries(tvData));
         setImages(imagesData);
+        setIsInWatchlist(watchlistStatus);
         
         // Filter videos to only include trailers and teasers from YouTube
         const filteredVideos = videosData.results.filter(
@@ -73,6 +78,23 @@ const TvSeriesDetailScreen = ({ route, navigation }) => {
 
     fetchTvData();
   }, [tvId]);
+
+  // Add watchlist toggle handler
+  const handleWatchlistToggle = async () => {
+    try {
+      if (isInWatchlist) {
+        await Watchlist.removeTvSeries(tvId);
+        ToastAndroid.show('Removed from watchlist', ToastAndroid.SHORT);
+      } else {
+        await Watchlist.addTvSeries(tvSeries);
+        ToastAndroid.show('Added to watchlist', ToastAndroid.SHORT);
+      }
+      setIsInWatchlist(!isInWatchlist);
+    } catch (error) {
+      console.error('Error toggling watchlist:', error);
+      ToastAndroid.show('Failed to update watchlist', ToastAndroid.SHORT);
+    }
+  };
 
   // Add a new useEffect to fetch episodes when selectedSeason changes
   useEffect(() => {
@@ -268,6 +290,18 @@ const TvSeriesDetailScreen = ({ route, navigation }) => {
             <Ionicons name="arrow-back" size={24} color={COLORS.white} />
           </TouchableOpacity>
           
+          {/* Watchlist Button - Add this */}
+          <TouchableOpacity 
+            style={styles.watchlistButton}
+            onPress={handleWatchlistToggle}
+          >
+            <Ionicons 
+              name={isInWatchlist ? "bookmark" : "bookmark-outline"} 
+              size={24} 
+              color={isInWatchlist ? COLORS.primary : COLORS.white} 
+            />
+          </TouchableOpacity>
+          
           {/* TV Series Poster */}
           <View style={styles.posterContainer}>
             <Image
@@ -354,9 +388,13 @@ const TvSeriesDetailScreen = ({ route, navigation }) => {
           
           {/* Action Buttons */}
           <View style={styles.actionContainer}>
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name="add" size={20} color={COLORS.white} />
-              <Text style={styles.actionText}>Add to Watchlist</Text>
+            <TouchableOpacity style={styles.actionButton} onPress={handleWatchlistToggle}>
+              <Ionicons 
+                name={isInWatchlist ? "remove" : "add"} 
+                size={20} 
+                color={COLORS.white} 
+              />
+              <Text style={styles.actionText}>{isInWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}</Text>
             </TouchableOpacity>
           </View>
           
@@ -604,7 +642,7 @@ const styles = StyleSheet.create({
   actionContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 20,
+    marginBottom: 20,
   },
   actionButton: {
     backgroundColor: COLORS.primary,
@@ -820,7 +858,16 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     padding: 12,
     paddingTop: 8,
-  }
+  },
+  watchlistButton: {
+    position: 'absolute',
+    top: 40,
+    right: 16,
+    zIndex: 10,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20,
+    padding: 8,
+  },
 });
 
 export default TvSeriesDetailScreen;
