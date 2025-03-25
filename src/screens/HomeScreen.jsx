@@ -27,6 +27,8 @@ const HomeScreen = ({ navigation }) => {
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [trendingTvSeries, setTrendingTvSeries] = useState([]);
   const [topRatedTvSeries, setTopRatedTvSeries] = useState([]);
+  const [indonesianMovies, setIndonesianMovies] = useState([]); 
+  const [indonesianTvSeries, setIndonesianTvSeries] = useState([]); // Add state for Indonesian TV series
   const [featuredMovie, setFeaturedMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -55,11 +57,13 @@ const HomeScreen = ({ navigation }) => {
       setError(null);
       
       // Fetch movies and TV series data in parallel
-      const [topRatedData, trendingData, trendingTvData, topRatedTvData] = await Promise.all([
+      const [topRatedData, trendingData, trendingTvData, topRatedTvData, indonesianData, indonesianTvData] = await Promise.all([
         movieAPI.getTopRatedMovies(),
         movieAPI.getTrendingMovies(),
         movieAPI.getTrendingTvSeries(),
-        movieAPI.getTopRatedTvSeries()
+        movieAPI.getTopRatedTvSeries(),
+        movieAPI.getIndonesianMovies(),
+        movieAPI.getIndonesianTvSeries() // Add Indonesian TV series API call
       ]);
       
       // Convert API responses to Movie and TvSeries objects
@@ -67,9 +71,11 @@ const HomeScreen = ({ navigation }) => {
       const trending = trendingData.results.map(movie => new Movie(movie));
       const trendingTv = trendingTvData.results.map(tv => new TvSeries(tv));
       const topRatedTv = topRatedTvData.results.map(tv => new TvSeries(tv));
+      const indonesian = indonesianData.results.map(movie => new Movie(movie));
+      const indonesianTv = indonesianTvData.results.map(tv => new TvSeries(tv));
       
       // Combine all media for random featured selection
-      const allMedia = [...trending, ...topRated, ...trendingTv, ...topRatedTv];
+      const allMedia = [...trending, ...topRated, ...trendingTv, ...topRatedTv, ...indonesian, ...indonesianTv];
       if (allMedia.length > 0) {
         setFeaturedMovie(allMedia[Math.floor(Math.random() * allMedia.length)]);
       }
@@ -79,6 +85,8 @@ const HomeScreen = ({ navigation }) => {
       setTrendingMovies(trending);
       setTrendingTvSeries(trendingTv);
       setTopRatedTvSeries(topRatedTv);
+      setIndonesianMovies(indonesian);
+      setIndonesianTvSeries(indonesianTv); // Set Indonesian TV series state
     } catch (err) {
       console.error('Failed to fetch data:', err);
       setError('Failed to load content. Please try again later.');
@@ -135,6 +143,20 @@ const HomeScreen = ({ navigation }) => {
           title: 'Top Rated TV Series', 
           type: 'tv',
           endpoint: 'top-rated'
+        });
+        break;
+      case 'indonesian-movies':
+        navigation.navigate('MediaList', { 
+          title: 'Indonesian Movies', 
+          type: 'movie',
+          endpoint: 'indonesian'
+        });
+        break;
+      case 'indonesian-tv':
+        navigation.navigate('MediaList', { 
+          title: 'Indonesian TV Series', 
+          type: 'tv',
+          endpoint: 'indonesian'
         });
         break;
       default:
@@ -314,6 +336,48 @@ const HomeScreen = ({ navigation }) => {
           <FlatList
             data={topRatedTvSeries}
             keyExtractor={(item) => `top-rated-tv-${item.id.toString()}`}
+            renderItem={renderTvSeriesCard}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.movieList}
+            removeClippedSubviews={false}
+            initialNumToRender={5}
+          />
+        </View>
+
+        {/* Indonesian Movies - Add this new section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Indonesian Movies</Text>
+            <TouchableOpacity onPress={() => handleSeeAllPress('indonesian-movies')}>
+              <Text style={styles.seeAll}>See all</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <FlatList
+            data={indonesianMovies}
+            keyExtractor={(item) => `indonesian-movie-${item.id.toString()}`}
+            renderItem={renderMovieCard}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.movieList}
+            removeClippedSubviews={false}
+            initialNumToRender={5}
+          />
+        </View>
+
+        {/* Indonesian TV Series - Add this new section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Indonesian TV Series</Text>
+            <TouchableOpacity onPress={() => handleSeeAllPress('indonesian-tv')}>
+              <Text style={styles.seeAll}>See all</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <FlatList
+            data={indonesianTvSeries}
+            keyExtractor={(item) => `indonesian-tv-${item.id.toString()}`}
             renderItem={renderTvSeriesCard}
             horizontal
             showsHorizontalScrollIndicator={false}

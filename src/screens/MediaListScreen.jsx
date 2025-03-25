@@ -53,6 +53,12 @@ const MediaListScreen = ({ route, navigation }) => {
         } else {
           data = await movieAPI.getTopRatedTvSeries(pageNum);
         }
+      } else if (endpoint === 'indonesian') {
+        if (type === 'movie') {
+          data = await movieAPI.getIndonesianMovies(pageNum);
+        } else {
+          data = await movieAPI.getIndonesianTvSeries(pageNum);
+        }
       }
       
       if (!data || !data.results) {

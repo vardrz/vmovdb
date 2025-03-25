@@ -3,7 +3,7 @@ class TvSeries {
     this.id = data.id;
     this.name = data.name;
     this.overview = data.overview;
-    this.posterPath = data.poster_path;
+    this.posterPath = data.poster_path ?? data.backdrop_path;
     this.backdropPath = data.backdrop_path;
     this.firstAirDate = data.first_air_date;
     this.lastAirDate = data.last_air_date;

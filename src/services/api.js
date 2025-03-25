@@ -308,6 +308,61 @@ export const movieAPI = {
             throw error;
         }
     },
+    
+    // Get Indonesian movies with pagination
+    getIndonesianMovies: async (page = 1) => {
+        try {
+            const url = buildUrl('/discover/movie', {
+                include_adult: false,
+                include_video: false,
+                language: 'id-ID',
+                page: page,
+                region: 'ID',
+                sort_by: 'popularity.desc',
+                with_origin_country: 'ID'
+            });
+            
+            const response = await fetch(url, { headers });
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.status_message || 'Failed to fetch Indonesian movies');
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Error fetching Indonesian movies:', error);
+            throw error;
+        }
+    },
+    
+    // Get Indonesian TV series with pagination
+    getIndonesianTvSeries: async (page = 1) => {
+        try {
+            const url = buildUrl('/discover/tv', {
+                include_adult: false,
+                include_null_first_air_dates: false,
+                language: 'id-ID',
+                page: page,
+                sort_by: 'first_air_date.desc',
+                timezone: 'Asia/Jakarta',
+                watch_region: 'ID',
+                with_origin_country: 'ID'
+            });
+            
+            const response = await fetch(url, { headers });
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.status_message || 'Failed to fetch Indonesian TV series');
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Error fetching Indonesian TV series:', error);
+            throw error;
+        }
+    },
 };
 
 export default movieAPI;

@@ -11,7 +11,11 @@ const TvSeriesCard = ({ tvSeries, onPress }) => {
       activeOpacity={0.8}
     >
       <Image
-        source={{ uri: tvSeries.getPosterUrl() }}
+        source={
+          tvSeries.posterPath 
+            ? { uri: tvSeries.getPosterUrl() } 
+            : require('../../assets/images/no-image.jpg')
+        }
         style={styles.poster}
         resizeMode="cover"
       />

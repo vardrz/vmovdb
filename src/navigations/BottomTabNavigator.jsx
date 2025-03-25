@@ -9,12 +9,6 @@ import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import WatchlistScreen from '../screens/WatchlistScreen';
 
-const ProfileScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }}>
-    <Text style={{ color: COLORS.white }}>Profile Screen</Text>
-  </View>
-);
-
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
@@ -30,8 +24,6 @@ const BottomTabNavigator = () => {
             iconName = focused ? 'search' : 'search-outline';
           } else if (route.name === 'Watchlist') {
             iconName = focused ? 'bookmark' : 'bookmark-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -51,7 +43,6 @@ const BottomTabNavigator = () => {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Search" component={SearchScreen} />
       <Tab.Screen name="Watchlist" component={WatchlistScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };
