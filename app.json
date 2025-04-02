@@ -16,7 +16,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.faridkaka.vmovdb"
+      "package": "com.vardrz.vmovdb"
     },
     "web": {
       "bundler": "metro",

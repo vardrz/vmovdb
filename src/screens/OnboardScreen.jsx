@@ -20,8 +20,18 @@ export default function OnboardScreen() {
         style={styles.background}
       />
       <View style={styles.content}>
+        <Image 
+          source={require('@/assets/images/logo.png')}
+          style={{
+            width: "30%",
+            height: "30%",
+            aspectRatio: 1,
+            marginBottom: "50%",
+          }}
+        />
+
         <Text style={styles.title}>
-          Welcome to VmovDB
+          Welcome to VMovDB
         </Text>
 
         <PagerView 
